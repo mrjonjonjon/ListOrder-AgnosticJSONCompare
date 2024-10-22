@@ -23,14 +23,20 @@
   <script>
     function sortObject(obj) {
       if (Array.isArray(obj)) {
-        return obj.map(sortObject).sort();  // Sort array contents
+        // Sort arrays by recursively sorting each element
+        return obj.map(sortObject).sort((a, b) => {
+          const aStr = JSON.stringify(a);
+          const bStr = JSON.stringify(b);
+          return aStr.localeCompare(bStr); // Compare JSON strings
+        });
       } else if (obj !== null && typeof obj === 'object') {
+        // Sort objects by their keys and recursively sort values
         return Object.keys(obj).sort().reduce((sorted, key) => {
           sorted[key] = sortObject(obj[key]);
           return sorted;
         }, {});
       }
-      return obj;  // Return non-object/non-array as is
+      return obj; // Return non-object/non-array as is
     }
 
     function compareJSON() {
