@@ -21,11 +21,27 @@
   <div class="result" id="result"></div>
 
   <script>
-    // Function to collect all keys, sort them, and then stringify the JSON object
-    function JSONstringifyOrder(obj, space) {
+        function JSONstringifyOrder(obj) {
       const allKeys = new Set();
       JSON.stringify(obj, (key, value) => (allKeys.add(key), value)); // Collect all keys
-      return JSON.stringify(obj, Array.from(allKeys).sort(), space);  // Sort and stringify
+      return JSON.stringify(obj, Array.from(allKeys).sort());  // Sort and stringify
+    }
+    function sortObject(obj) {
+      if (Array.isArray(obj)) {
+        // Sort arrays by recursively sorting each element
+        return obj.map(sortObject).sort((a, b) => {
+          const aStr = JSONstringifyOrder(a);
+          const bStr = JSONstringifyOrder(b);
+          return aStr.localeCompare(bStr); // Compare JSON strings
+        });
+      } else if (obj !== null && typeof obj === 'object') {
+        // Sort objects by their keys and recursively sort values
+        return Object.keys(obj).sort().reduce((sorted, key) => {
+          sorted[key] = sortObject(obj[key]);
+          return sorted;
+        }, {});
+      }
+      return obj; // Return non-object/non-array as is
     }
 
     function compareJSON() {
@@ -33,12 +49,10 @@
         const json1 = JSON.parse(document.getElementById('json1').value);
         const json2 = JSON.parse(document.getElementById('json2').value);
 
-        // Use the JSONstringifyOrder function to sort and compare both JSON objects
-        const sortedJson1 = JSONstringifyOrder(json1, 2);  // Pretty print with space = 2
-        const sortedJson2 = JSONstringifyOrder(json2, 2);
+        const sortedJson1 = sortObject(json1);
+        const sortedJson2 = sortObject(json2);
 
-        // Compare the stringified, sorted JSON objects
-        const result = sortedJson1 === sortedJson2;
+        const result = JSON.stringify(sortedJson1) === JSON.stringify(sortedJson2);
         document.getElementById('result').innerHTML = result ? '<b>Match</b>' : '<b>No Match</b>';
       } catch (e) {
         document.getElementById('result').innerHTML = '<b>Error parsing JSON.</b>';
