@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JSON Comparator</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    textarea { width: 100%; height: 150px; margin-bottom: 10px; }
+    .result { margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <h2>Compare JSON Objects (Order-Agnostic)</h2>
+
+  <textarea id="json1" placeholder="Enter first JSON object"></textarea>
+  <textarea id="json2" placeholder="Enter second JSON object"></textarea>
+
+  <button onclick="compareJSON()">Compare</button>
+
+  <div class="result" id="result"></div>
+
+  <script>
+    function sortObject(obj) {
+      if (Array.isArray(obj)) {
+        return obj.map(sortObject);
+      } else if (obj !== null && typeof obj === 'object') {
+        return Object.keys(obj).sort().reduce((sorted, key) => {
+          sorted[key] = sortObject(obj[key]);
+          return sorted;
+        }, {});
+      }
+      return obj;
+    }
+
+    function compareJSON() {
+      try {
+        const json1 = JSON.parse(document.getElementById('json1').value);
+        const json2 = JSON.parse(document.getElementById('json2').value);
+
+        const sortedJson1 = sortObject(json1);
+        const sortedJson2 = sortObject(json2);
+
+        const result = JSON.stringify(sortedJson1) === JSON.stringify(sortedJson2);
+        document.getElementById('result').innerHTML = result ? '<b>Match</b>' : '<b>No Match</b>';
+      } catch (e) {
+        document.getElementById('result').innerHTML = '<b>Error parsing JSON.</b>';
+      }
+    }
+  </script>
+</body>
+</html>
