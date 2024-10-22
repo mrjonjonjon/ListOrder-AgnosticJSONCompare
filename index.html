@@ -11,7 +11,7 @@
   </style>
 </head>
 <body>
-  <h2>Compare JSON Objects (Order-Agnostic)</h2>
+  <h2>Compare JSON Objects (Order-Agnostic, including arrays)</h2>
 
   <textarea id="json1" placeholder="Enter first JSON object"></textarea>
   <textarea id="json2" placeholder="Enter second JSON object"></textarea>
@@ -23,14 +23,14 @@
   <script>
     function sortObject(obj) {
       if (Array.isArray(obj)) {
-        return obj.map(sortObject);
+        return obj.map(sortObject).sort();  // Sort array contents
       } else if (obj !== null && typeof obj === 'object') {
         return Object.keys(obj).sort().reduce((sorted, key) => {
           sorted[key] = sortObject(obj[key]);
           return sorted;
         }, {});
       }
-      return obj;
+      return obj;  // Return non-object/non-array as is
     }
 
     function compareJSON() {
